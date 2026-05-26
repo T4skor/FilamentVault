@@ -849,6 +849,12 @@ void BackgroundSlicingProcess::finalize_gcode()
 	}
 
 	m_print->set_status(100, GUI::format(_L("G-code file exported to %1%"), export_path));
+
+	// BBS: fire export finished event for non-BBL printers (BBL path uses export_gcode() instead)
+	auto evt = new wxCommandEvent(m_event_export_finished_id, GUI::wxGetApp().mainframe->m_plater->GetId());
+	wxString output_gcode_str = wxString::FromUTF8(export_path.c_str(), export_path.length());
+	evt->SetString(output_gcode_str);
+	wxQueueEvent(GUI::wxGetApp().mainframe->m_plater, evt);
 }
 
 // G-code is generated in m_temp_output_path.
@@ -954,6 +960,11 @@ void BackgroundSlicingProcess::prepare_upload()
 	m_upload_job.upload_data.source_path = std::move(source_path);
 
 	GUI::wxGetApp().printhost_job_queue().enqueue(std::move(m_upload_job));
+
+	// BBS: fire export finished event for legacy send path
+	auto evt = new wxCommandEvent(m_event_export_finished_id, GUI::wxGetApp().mainframe->m_plater->GetId());
+	evt->SetString(wxString::FromUTF8(m_temp_output_path.c_str()));
+	wxQueueEvent(GUI::wxGetApp().mainframe->m_plater, evt);
 }
 // Executed by the background thread, to start a task on the UI thread.
 ThumbnailsList BackgroundSlicingProcess::render_thumbnails(const ThumbnailsParams &params)

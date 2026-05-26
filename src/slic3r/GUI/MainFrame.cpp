@@ -1352,6 +1352,10 @@ void MainFrame::init_tabpanel() {
     m_calibration->SetBackgroundColour(*wxWHITE);
     m_tabpanel->AddPage(m_calibration, _L("Calibration"), std::string("tab_calibration_active"), std::string("tab_calibration_active"), false);
 
+    m_filament_vault = new FilamentVaultPanel(m_tabpanel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    m_filament_vault->SetBackgroundColour(*wxWHITE);
+    m_tabpanel->AddPage(m_filament_vault, _L("Filament"), std::string(""), std::string(""), false);
+
     if (m_plater) {
         // load initial config
         auto full_config = wxGetApp().preset_bundle->full_config();

@@ -83,6 +83,7 @@
 #include "wxExtensions.hpp"
 #include "../Utils/PrintHost.hpp"
 #include "MainFrame.hpp"
+#include "FilamentVaultPanel.hpp"
 #include "format.hpp"
 #include "3DScene.hpp"
 #include "GLCanvas3D.hpp"
@@ -9779,6 +9780,14 @@ void Plater::priv::on_export_finished(wxCommandEvent& evt)
         q->export_3mf(gcode_path.replace_extension(".3mf"), SaveStrategy::Silence); // BBS: silence
     }
 #endif
+
+    // Auto-deduct filament weight from vault spool
+    auto *panel = main_frame->m_filament_vault;
+    if (panel && panel->active_spool_id() >= 0) {
+        const Print *print = background_process.fff_print();
+        if (print && print->print_statistics().total_weight > 0.0)
+            panel->deduct_filament(print->print_statistics().total_weight);
+    }
 }
 
 void Plater::priv::on_slicing_began()
@@ -16248,6 +16257,14 @@ void Plater::print_job_finished(wxCommandEvent &evt)
 {
     //start print failed
     if (p) {
+        // Auto-deduct filament weight from vault spool
+        auto *panel = p->main_frame->m_filament_vault;
+        if (panel && panel->active_spool_id() >= 0) {
+            const Print *print = p->background_process.fff_print();
+            if (print && print->print_statistics().total_weight > 0.0)
+                panel->deduct_filament(print->print_statistics().total_weight);
+        }
+
 #ifdef __APPLE__
         p->hide_select_machine_dlg();
 #else
@@ -16273,6 +16290,16 @@ void Plater::print_job_finished(wxCommandEvent &evt)
 
 void Plater::send_job_finished(wxCommandEvent& evt)
 {
+    // Auto-deduct filament weight from vault spool
+    {
+        auto *panel = p->main_frame->m_filament_vault;
+        if (panel && panel->active_spool_id() >= 0) {
+            const Print *print = p->background_process.fff_print();
+            if (print && print->print_statistics().total_weight > 0.0)
+                panel->deduct_filament(print->print_statistics().total_weight);
+        }
+    }
+
     Slic3r::DeviceManager* dev = Slic3r::GUI::wxGetApp().getDeviceManager();
     if (!dev) return;
     //dev->set_selected_machine(evt.GetString().ToStdString());

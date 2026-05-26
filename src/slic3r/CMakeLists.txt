@@ -723,18 +723,39 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GeneratedConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/GeneratedConfig.hpp
                @ONLY)
 
+find_package(SQLiteCpp REQUIRED)
+
+set(FILAMENT_VAULT_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/SpoolMatcher.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/SpoolMatcher.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/VaultModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/VaultModel.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SchemaManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SchemaManager.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SQLiteStore.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SQLiteStore.hpp
+    GUI/FilamentVaultPanel.cpp
+    GUI/FilamentVaultPanel.hpp
+)
+
 if (WIN32)
     add_library(libslic3r_gui STATIC
         ${SLIC3R_GUI_SOURCES}
+        ${FILAMENT_VAULT_SOURCES}
         ../dev-utils/BaseException.cpp
         ../dev-utils/BaseException.h
         ../dev-utils/StackWalker.cpp
         ../dev-utils/StackWalker.h
     )
 else ()
-    add_library(libslic3r_gui STATIC ${SLIC3R_GUI_SOURCES})
+    add_library(libslic3r_gui STATIC
+        ${SLIC3R_GUI_SOURCES}
+        ${FILAMENT_VAULT_SOURCES}
+    )
 endif ()
 target_include_directories(libslic3r_gui PRIVATE Utils ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(libslic3r_gui PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(libslic3r_gui SYSTEM PRIVATE ${SQLiteCpp_INCLUDE_DIRS})
 
 if (WIN32)
     target_include_directories(libslic3r_gui SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../deps/WebView2/include)
@@ -742,6 +763,16 @@ if (WIN32)
 endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SLIC3R_GUI_SOURCES})
+source_group(TREE ${CMAKE_SOURCE_DIR}/src FILES
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/SpoolMatcher.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/SpoolMatcher.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/VaultModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/Core/VaultModel.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SchemaManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SchemaManager.hpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SQLiteStore.cpp
+    ${CMAKE_SOURCE_DIR}/src/FilamentVault/DB/SQLiteStore.hpp
+)
 
 encoding_check(libslic3r_gui)
 
@@ -752,7 +783,7 @@ else()
     set(_opengl_link_lib OpenGL::GL)
 endif()
 
-target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html glad ${_opengl_link_lib} hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
+target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html glad ${_opengl_link_lib} hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise ${SQLiteCpp_LIBRARIES})
 
 
 if (MSVC)

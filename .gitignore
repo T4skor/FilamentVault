@@ -46,3 +46,10 @@ test.js
 internal_docs/
 *.flatpak
 /flatpak-repo/
+result.json
+test_db.cpp
+src/FilamentVault/tests/test_db
+src/libslic3r/PrintEventListener.cpp
+src/libslic3r/SQLiteStore.hpp
+src/libslic3r/SQLiteStore.cpp
+src/libslic3r/Spool.hpp
