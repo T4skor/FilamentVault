@@ -27,12 +27,12 @@ FilamentVault is a **filament stock tracking system** integrated directly into O
 
 ### How it works
 
-1. Open the **Filament** tab in OrcaSlicer
-2. Add your spools (brand, material, color, total weight)
-3. Select a spool and click **"Print with"** to set it as active
-4. Slice and print as usual — the used weight is deducted automatically
+1. **Add spools**: Open the **FilamentVault** panel (`Filament` tab → *Filament Vault* sub-tab) and click *Add Spool*. Enter brand, material type, color, total weight (g), and optional temperature overrides.
+2. **Select active spool**: Click a spool card and press *Print with* to mark it as active. The active spool is shown at the top of the panel.
+3. **Print**: Slice and export G-code or send to a printer. The used filament weight is automatically deducted from the active spool.
+4. **Track history**: Click any spool to see its deduction history with timestamps. Archive empty spools instead of deleting them.
 
-The filament weight (`total_weight` in grams) is computed from the extruded volume and filament density during slicing, so the deduction is accurate.
+The filament weight is computed from the extruded volume and filament density during slicing, so the deduction is accurate.
 
 ## Data storage
 
@@ -78,6 +78,10 @@ mkdir build && cd build
 cmake ..
 cmake --build . --config RelWithDebInfo --target all --
 ```
+
+## Windows installer
+
+A pre-built Windows x64 installer is available in the [Releases](https://github.com/T4skor/FilamentVault/releases) page. Download `OrcaSlicer-*-win64-installer.exe`, run it, and launch OrcaSlicer from the Start Menu or desktop shortcut.
 
 ## Requirements
 
